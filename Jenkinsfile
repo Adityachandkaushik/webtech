@@ -12,7 +12,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker image...'
-                    sh 'docker build -t static-website:11 .'
+                    bat 'docker build -t static-website:11 .'
                 }
             }
         }
@@ -20,10 +20,16 @@ pipeline {
         stage('Run Website in Docker') {
             steps {
                 script {
+                    echo 'Stopping any existing containers...'
+                    // stop existing containers (safe way in Windows)
+                    bat '''
+                    for /f "tokens=*" %%i in ('docker ps -q --filter "ancestor=static-website:11"') do docker stop %%i
+                    '''
+
                     echo 'Running website on port 8085...'
-                    sh 'docker run -d -p 8085:8085 static-website:11'
+                    bat 'docker run -d -p 8085:80 static-website:11'
                 }
             }
-        }
-    }
+        }
+    }
 }
