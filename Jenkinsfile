@@ -8,22 +8,21 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Static website — build not required.'
+                script {
+                    echo 'Building Docker image...'
+                    sh 'docker build -t static-website:latest .'
+                }
             }
         }
 
-        stage('Publish Website') {
+        stage('Run Website in Docker') {
             steps {
-                // Publish static HTML from the repo
-                publishHTML(target: [
-                    reportDir: '.',            // folder where HTML files are located
-                    reportFiles: 'index.html', // main HTML file
-                    reportName: 'My Static Site',
-                    keepAll: true,
-                    allowMissing: false
-                ])
+                script {
+                    echo 'Running website on port 8085...'
+                    sh 'docker run -d -p 8085:8085 static-website:latest'
+                }
             }
         }
     }
